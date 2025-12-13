@@ -1,0 +1,6 @@
+net\enabify\activeChat\listener\JoinListener.class
+net\enabify\activeChat\manager\PointsManager.class
+net\enabify\activeChat\data\PlayerDataManager$1.class
+net\enabify\activeChat\listener\ChatListener.class
+net\enabify\activeChat\data\PlayerDataManager.class
+net\enabify\activeChat\ActiveChat.class

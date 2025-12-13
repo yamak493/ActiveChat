@@ -1,0 +1,7 @@
+name: ActiveChat
+version: '1.0-SNAPSHOT'
+main: net.enabify.activeChat.ActiveChat
+api-version: '1.21'
+folia-supported: true
+description: 'チャット活性化プラグイン - Folia対応'
+author: 'Enabify'
