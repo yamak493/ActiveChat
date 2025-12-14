@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PlayerDataManager {
     private final File dataFile;
     private final Gson gson;
-    private final Map<UUID, Integer> playerPoints;
+    private final Map<UUID, PlayerPoints> playerPoints;
     
     public PlayerDataManager(File dataFolder) {
         this.dataFile = new File(dataFolder, "playerPoints.json");
@@ -45,8 +45,8 @@ public class PlayerDataManager {
         }
         
         try (FileReader reader = new FileReader(dataFile)) {
-            Type type = new TypeToken<Map<String, Integer>>(){}.getType();
-            Map<String, Integer> loaded = gson.fromJson(reader, type);
+            Type type = new TypeToken<Map<String, PlayerPoints>>(){}.getType();
+            Map<String, PlayerPoints> loaded = gson.fromJson(reader, type);
             
             if (loaded != null) {
                 playerPoints.clear();
@@ -69,7 +69,7 @@ public class PlayerDataManager {
      */
     public void saveData() {
         try (FileWriter writer = new FileWriter(dataFile)) {
-            Map<String, Integer> toSave = new HashMap<>();
+            Map<String, PlayerPoints> toSave = new HashMap<>();
             playerPoints.forEach((uuid, points) -> toSave.put(uuid.toString(), points));
             gson.toJson(toSave, writer);
         } catch (IOException e) {
@@ -80,30 +80,39 @@ public class PlayerDataManager {
     /**
      * プレイヤーのポイントを取得
      */
-    public int getPoints(UUID uuid) {
-        return playerPoints.getOrDefault(uuid, 0);
+    public PlayerPoints getPoints(UUID uuid) {
+        return playerPoints.computeIfAbsent(uuid, k -> new PlayerPoints());
     }
     
     /**
-     * プレイヤーのポイントを追加
+     * 通常チャットポイントを追加
      */
-    public void addPoints(UUID uuid, int points) {
-        playerPoints.merge(uuid, points, Integer::sum);
+    public void addNormalChatPoints(UUID uuid, int points) {
+        getPoints(uuid).addNormalChat(points);
     }
     
     /**
-     * プレイヤーのポイントをリセット
+     * 挨拶ポイントを追加
      */
-    public void resetPoints(UUID uuid) {
-        playerPoints.put(uuid, 0);
+    public void addGreetingPoints(UUID uuid, int points) {
+        getPoints(uuid).addGreeting(points);
+    }
+    
+    /**
+     * 新規さん歓迎ポイントを追加
+     */
+    public void addWelcomeNewPlayerPoints(UUID uuid, int points) {
+        getPoints(uuid).addWelcomeNewPlayer(points);
     }
     
     /**
      * プレイヤーのポイントを取得してリセット
      */
-    public int getAndResetPoints(UUID uuid) {
-        int points = getPoints(uuid);
-        resetPoints(uuid);
-        return points;
+    public PlayerPoints getAndResetPoints(UUID uuid) {
+        PlayerPoints points = getPoints(uuid);
+        PlayerPoints copy = new PlayerPoints(points.normalChat, points.greeting, points.welcomeNewPlayer);
+        points.reset();
+        return copy;
     }
 }
+

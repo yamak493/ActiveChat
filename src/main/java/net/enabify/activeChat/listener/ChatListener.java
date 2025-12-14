@@ -50,26 +50,34 @@ public class ChatListener implements Listener {
         checkSpam(player, message);
         
         // 各ポイント判定を実行
-        int totalPoints = 0;
+        int normalPoints = 0;
+        int greetingPoints = 0;
+        int welcomePoints = 0;
         
         // 1. 通常チャットのポイント判定
-        int normalPoints = pointsManager.checkNormalChat(uuid, messageLength);
-        totalPoints += normalPoints;
+        normalPoints = pointsManager.checkNormalChat(uuid, messageLength);
         
         // 2. 新規さん歓迎チャットのポイント判定
-        int welcomePoints = pointsManager.checkWelcomeChat(uuid, message);
-        totalPoints += welcomePoints;
+        welcomePoints = pointsManager.checkWelcomeChat(uuid, message);
         
         // 3. 挨拶チャットのポイント判定
-        int greetingPoints = pointsManager.checkGreetingChat(uuid, message);
-        totalPoints += greetingPoints;
+        greetingPoints = pointsManager.checkGreetingChat(uuid, message);
         
-        // ポイントがある場合は加算
-        if (totalPoints > 0) {
-            final int points = totalPoints;
-            // 非同期でデータを更新
+        // ポイントを分類して記録
+        if (normalPoints > 0 || greetingPoints > 0 || welcomePoints > 0) {
+            int finalNormalPoints = normalPoints;
+            int finalGreetingPoints = greetingPoints;
+            int finalWelcomePoints = welcomePoints;
             plugin.getServer().getAsyncScheduler().runNow(plugin, scheduledTask -> {
-                dataManager.addPoints(uuid, points);
+                if (finalNormalPoints > 0) {
+                    dataManager.addNormalChatPoints(uuid, finalNormalPoints);
+                }
+                if (finalGreetingPoints > 0) {
+                    dataManager.addGreetingPoints(uuid, finalGreetingPoints);
+                }
+                if (finalWelcomePoints > 0) {
+                    dataManager.addWelcomeNewPlayerPoints(uuid, finalWelcomePoints);
+                }
                 dataManager.saveData();
             });
         }

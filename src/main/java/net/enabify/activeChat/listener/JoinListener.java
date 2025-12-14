@@ -2,8 +2,10 @@ package net.enabify.activeChat.listener;
 
 import net.enabify.activeChat.ActiveChat;
 import net.enabify.activeChat.data.PlayerDataManager;
+import net.enabify.activeChat.data.PlayerPoints;
 import net.enabify.activeChat.manager.PointsManager;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -63,20 +65,18 @@ public class JoinListener implements Listener {
         
         // 前回獲得したポイントを付与
         plugin.getServer().getAsyncScheduler().runDelayed(plugin, scheduledTask -> {
-            int points = dataManager.getAndResetPoints(uuid);
+            PlayerPoints points = dataManager.getAndResetPoints(uuid);
             
-            if (points > 0) {
-                final int finalPoints = points;
-                
+            if (points.getTotal() > 0) {
                 // コマンド実行はグローバルスケジューラーで実行（Folia対応）
                 Bukkit.getServer().getGlobalRegionScheduler().run(plugin, task -> {
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), 
-                        "points give " + player.getName() + " " + finalPoints);
+                        "points give " + player.getName() + " " + points.getTotal());
                 });
                 
-                // メッセージはプレイヤースケジューラーで実行
+                // ポイント内訳メッセージはプレイヤースケジューラーで実行
                 player.getScheduler().run(plugin, task -> {
-                    player.sendMessage("§aたくさんチャットと挨拶をしてポイントを貯めよう！（前回のログインで獲得したポイント: " + finalPoints + "pt）");
+                    player.sendMessage(ChatColor.GREEN + "たくさんチャットと挨拶をしてポイントを貯めよう！\n前回のログインで獲得したポイント：\n" + points.getDetails());
                 }, null);
             }
             
