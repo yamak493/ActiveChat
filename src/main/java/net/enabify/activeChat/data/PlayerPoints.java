@@ -62,8 +62,8 @@ public class PlayerPoints {
      * ポイント内訳を文字列で取得
      */
     public String getDetails() {
-        return "- 通常チャット: " + normalChat + "円\n" +
-               "- 挨拶: " + greeting + "円\n" +
-               "- 新規さん挨拶: " + welcomeNewPlayer + "円";
+        return "- 通常チャット: " + normalChat + "pt\n" +
+               "- 挨拶: " + greeting + "pt\n" +
+               "- 新規さん挨拶: " + welcomeNewPlayer + "pt";
     }
 }

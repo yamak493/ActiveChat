@@ -103,7 +103,9 @@ public class PointsManager {
         boolean isGreetingMessage = message.contains("08") ||
                                     message.contains("52") ||
                                     message.contains("58") ||
+                                    lowerMessage.contains("oha") ||
                                     lowerMessage.contains("おは") ||
+                                    lowerMessage.contains("kon") ||
                                     lowerMessage.contains("こん");
         
         if (!isGreetingMessage) {
